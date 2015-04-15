@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>canvas弹球游戏</title>
+    <script type="text/javascript">
+        // 全局变量设定
+        var ballX = 150; // 球的初始位置x
+        var ballY = 150; // 球的初始位置y
+        var ballDX = 2; // 球的移动步长x
+        var ballDY = 4; // 球的移动步长y
+        var boardWidth = 300; // 画布宽
+        var boardHeight = 300; // 画布高
+        var paddleX = 150; // 板子初始位置
+        var paddleH = 15; // 板子高度
+        var paddleD = boardHeight - paddleH; // 板子所在的y轴位置
+        var paddleW = 150; // 板子宽度
+        var canvas; // Canvas对象
+        var ctx; // Canvas上下文
+        var gameRun; // 游戏脚本
+        // This function is called on page load.
+
+
+        function drawGameCanvas() {
+
+            // 获得canvas元素
+            canvas = document.getElementById("gameContent");
+
+            // 判断是否支持canvas
+            if (canvas.getContext) {
+                // 创建2d画布
+                ctx = canvas.getContext("2d");
+
+                // 游戏开始
+                gameRun = setInterval(drawBall, 15);
+
+                // 键盘事件绑定
+                window.addEventListener('keydown', whatKey, true);
+
+            }
+        }
+
+        function drawBall() {
+
+            // 擦除画布
+            ctx.clearRect(0, 0, boardWidth, boardHeight);
+
+            // 填充画布
+            ctx.fillStyle = "#ffeeff";
+            ctx.beginPath();
+            ctx.rect(0, 0, boardWidth, boardHeight);
+            ctx.closePath();
+            ctx.fill();
+
+            // 填充小球
+            ctx.fillStyle = "#cc66aa";
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, 15, 0, Math.PI * 2, true);
+            ctx.closePath();
+            ctx.fill();
+
+            // 填充板子
+            ctx.fillStyle = "#00aaff";
+            ctx.beginPath();
+            ctx.rect(paddleX, paddleD, paddleW, paddleH);
+            ctx.closePath();
+            ctx.fill();
+
+            // 改变球的位置
+            ballX += ballDX;
+            ballY += ballDY;
+
+            // 接触屏幕左右边缘
+            if (ballX + ballDX > boardWidth - 15 || ballX + ballDX < 15) ballDX = -ballDX;
+
+            // If ball hits the top, bounce it.
+            if (ballY + ballDY < 15) ballDY = -ballDY;
+            // 判断球是否打在板子上
+            else if (ballY + ballDY > boardHeight - 15 - paddleH && ballDY>=0) {
+                // 打在板子上反弹
+                if (ballX > paddleX && ballX < paddleX + paddleW) ballDY = -ballDY;
+                // 判断球是否坠地
+                else if(ballY + ballDY >= boardHeight - 15){
+                    clearInterval(gameRun);
+                    alert("Game over!");
+                }
+            }
+        }
+
+        // 绑定键盘时间
+        function whatKey(evt) {
+
+            switch (evt.keyCode) {
+                // 左
+                case 37:
+                    paddleX = paddleX - 20;
+                    if (paddleX < 0) paddleX = 0;
+                    break;
+
+                // 右
+                case 39:
+                    paddleX = paddleX + 20;
+                    if (paddleX > boardWidth - paddleW) paddleX = boardWidth - paddleW;
+                    break;
+            }
+        }
+    </script>
+</head>
+<body onload="drawGameCanvas()">
+<h1>
+    Canvas 弹球
+</h1>
+<div>
+    <canvas id="gameContent" width="300" height="300">
+    </canvas>
+</div>
+</body>
+</html>
